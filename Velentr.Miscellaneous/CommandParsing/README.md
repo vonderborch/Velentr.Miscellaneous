@@ -1,9 +1,6 @@
 # Velentr.Miscellaneous.CommandParsing
 Helpers to help with converting strings into a command, which can subsequently be executed, and the parameters for it.
 
-# Installation
-A nuget package is available: [Velentr.Miscellaneous](https://www.nuget.org/packages/Velentr.Miscellaneous/)
-
 # Arguments vs Parameters
 In the current implementation, an Argument is defined when a Command is initialized. These are any arguments that can/should be given when a command is called.
 
