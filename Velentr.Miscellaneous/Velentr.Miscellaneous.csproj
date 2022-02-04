@@ -11,10 +11,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/vonderborch/Velentr.Miscellaneous</PackageProjectUrl>
     <BaseOutputPath>..\release\</BaseOutputPath>
-    <Version>1.0.1</Version>
-    <VersionPrefix>1.0.1</VersionPrefix>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <FileVersion>1.0.1</FileVersion>
+    <Version>1.0.2</Version>
+    <VersionPrefix>1.0.2</VersionPrefix>
+    <AssemblyVersion>1.0.2</AssemblyVersion>
+    <FileVersion>1.0.2</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
