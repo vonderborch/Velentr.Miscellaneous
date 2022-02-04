@@ -34,6 +34,8 @@ namespace Velentr.Miscellaneous.CommandParsing
             ValueType = valueType;
             Value = value;
             WasProvidedByUser = wasProvidedByUser;
+            ParameterIsValidType = true;
+            ParameterIsValidType = ValidateParameterType();
         }
 
         /// <summary>
@@ -44,6 +46,15 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// The name.
         /// </value>
         public string Name { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the parameter is valid type.
+        /// </summary>
+        ///
+        /// <value>
+        /// True if parameter is valid type, false if not.
+        /// </value>
+        public bool ParameterIsValidType { get; }
 
         /// <summary>
         /// Gets the type of the value.
@@ -71,5 +82,89 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// True if was provided by user, false if not.
         /// </value>
         public bool WasProvidedByUser { get; }
+
+        /// <summary>
+        /// Validates the parameter type.
+        /// </summary>
+        ///
+        /// <returns>
+        /// True if it succeeds, false if it fails.
+        /// </returns>
+        private bool ValidateParameterType()
+        {
+            try
+            {
+                if (ValueType == TypeConstants.IntType)
+                {
+                    var _ = (int)Value;
+                }
+                else if (ValueType == TypeConstants.LongType)
+                {
+                    var _ = (long)Value;
+                }
+                else if (ValueType == TypeConstants.ShortType)
+                {
+                    var _ = (short)Value;
+                }
+                else if (ValueType == TypeConstants.UnsignedIntType)
+                {
+                    var _ = (uint)Value;
+                }
+                else if (ValueType == TypeConstants.UnsignedLongType)
+                {
+                    var _ = (ulong)Value;
+                }
+                else if (ValueType == TypeConstants.UnsignedShortType)
+                {
+                    var _ = (ushort)Value;
+                }
+                else if (ValueType == TypeConstants.ByteType)
+                {
+                    var _ = (byte)Value;
+                }
+                else if (ValueType == TypeConstants.BoolType)
+                {
+                    var _ = (bool)Value;
+                }
+                else if (ValueType == TypeConstants.StringType)
+                {
+                    var _ = Value.ToString();
+                }
+                else if (ValueType == TypeConstants.FloatType)
+                {
+                    var _ = (float)Value;
+                }
+                else if (ValueType == TypeConstants.DoubleType)
+                {
+                    var _ = (double)Value;
+                }
+                else if (ValueType == TypeConstants.DecimalType)
+                {
+                    var _ = (decimal)Value;
+                }
+                else if (ValueType == TypeConstants.SByteType)
+                {
+                    var _ = (sbyte)Value;
+                }
+                else if (ValueType == TypeConstants.CharType)
+                {
+                    var _ = (char)Value;
+                }
+                else if (ValueType == TypeConstants.NIntType)
+                {
+                    var _ = (nint)Value;
+                }
+                else if (ValueType == TypeConstants.NUnsignedIntType)
+                {
+                    var _ = (nuint)Value;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

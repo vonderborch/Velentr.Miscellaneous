@@ -121,7 +121,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <param name="isRequired">   (Optional) True if is required, false if not. </param>
         public void AddArgument(string name, string description, Type valueType, object defaultValue = null, bool isRequired = false)
         {
-            Arguments.AddItem(Name, new Argument(name, description, valueType, defaultValue, isRequired));
+            Arguments.AddItem(name, new Argument(name, description, valueType, defaultValue, isRequired));
             _exampleCommandCache = "";
             _requiredArgumentsCache = int.MinValue;
         }

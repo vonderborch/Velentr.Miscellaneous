@@ -241,27 +241,29 @@ namespace Velentr.Miscellaneous.CommandParsing
                             {
                                 actualName = actualName.ToLowerInvariant();
                                 var arg = command.Arguments[actualName];
-                                commandParameters.Add(actualName, new Parameter(actualName, arg.ValueType, value));
+                                var parameter = new Parameter(actualName, arg.ValueType, value);
+                                
+                                // Failure Case 7 - Invalid Parameter Type
+                                if (!parameter.ParameterIsValidType)
+                                {
+                                    executeHelpMessageOnFailure = true;
+                                    helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #7"));
+                                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid type for the command [{output.Item2}]!"));
+                                }
+                                else
+                                {
+                                    commandParameters.Add(actualName, parameter);
+                                }
                             }
                         }
                     }
 
-                    // Failure Case 7 - Not all required arguments have been specified
+                    // Failure Case 8 - Not all required arguments have been specified
                     if (requiredArgs != command.GetRequiredArgumentsCount())
                     {
                         executeHelpMessageOnFailure = true;
-                        helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #7"));
+                        helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #8"));
                         helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Not all required arguments have been specified for the command [{output.Item2}]!"));
-                    }
-
-                    // Provide all of the default parameters if any isn't specified
-                    if (!executeHelpMessageOnFailure)
-                    {
-                        var argumentsToDefault = command.Arguments.Where(x => !x.Value.IsRequired && !commandParameters.ContainsKey(x.Key));
-                        foreach (var argument in argumentsToDefault)
-                        {
-                            commandParameters.Add(argument.Key, new Parameter(argument.Key, argument.Value.ValueType, argument.Value.DefaultValue));
-                        }
                     }
                 }
             }

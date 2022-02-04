@@ -99,6 +99,6 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <value>
         /// Information describing as parameter.
         /// </value>
-        public string AsParameterDescription => $"  {Name} - {(IsRequired == false ? "(Optional)" : "(Required)")} {Description}";
+        public string AsParameterDescription => $"  {Name} - ({(IsRequired == false ? "Optional" : "Required")}, {ValueType.ToString().Replace("System.", "")}) {Description}";
     }
 }

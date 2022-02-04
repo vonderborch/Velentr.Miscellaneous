@@ -28,6 +28,15 @@ namespace Velentr.Miscellaneous.CommandParsing
         public string Name { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the parameter is valid type.
+        /// </summary>
+        ///
+        /// <value>
+        /// True if parameter is valid type, false if not.
+        /// </value>
+        public bool ParameterIsValidType { get; }
+
+        /// <summary>
         /// Gets the type of the value.
         /// </summary>
         ///
