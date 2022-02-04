@@ -1,16 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Christian Webber</Authors>
     <Company>Christian Webber</Company>
-    <RepositoryUrl></RepositoryUrl>
+    <RepositoryUrl>https://github.com/vonderborch/Velentr.Miscellaneous</RepositoryUrl>
     <PackageTags></PackageTags>
     <Description>Miscellaneous helper methods and things that are useful for various purposes.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/vonderborch/Velentr.Miscellaneous</PackageProjectUrl>
     <BaseOutputPath>..\release\</BaseOutputPath>
+    <Version>1.0.1</Version>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

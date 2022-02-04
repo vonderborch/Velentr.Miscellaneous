@@ -73,7 +73,7 @@ namespace Velentr.Miscellaneous.dev
                 var command = Console.ReadLine();
 
                 var arguments = new Dictionary<string, object>();
-                var cmd = parser.ParseCommand(command, arguments);
+                var cmd = parser.ParseCommand(command);
 
                 cmd.Command.ExecuteCommand(cmd.Parameters, arguments);
             }

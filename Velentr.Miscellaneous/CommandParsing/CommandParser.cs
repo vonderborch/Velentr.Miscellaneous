@@ -138,12 +138,11 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// </summary>
         ///
         /// <param name="messageToParse">   The message to parse. </param>
-        /// <param name="args">             The arguments. </param>
         ///
         /// <returns>
         /// A Tuple.
         /// </returns>
-        public virtual IParseResult ParseCommand(string messageToParse, Dictionary<string, object> args)
+        public virtual IParseResult ParseCommand(string messageToParse)
         {
             //// return early if there's nothing to attempt to parse...
             if (!messageToParse.StartsWith(CommandPrefix))
@@ -271,11 +270,11 @@ namespace Velentr.Miscellaneous.CommandParsing
             if (executeHelpMessageOnFailure)
             {
                 helpParameters.Add("failed_command", new Parameter("failed_command", typeof(string), messageToParse));
-                return AddOptionalParameters(HelpCommand, helpParameters, args);
+                return AddOptionalParameters(HelpCommand, helpParameters);
             }
             else
             {
-                return AddOptionalParameters(command, commandParameters, args);
+                return AddOptionalParameters(command, commandParameters);
             }
         }
 
@@ -290,7 +289,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <returns>
         /// A Tuple.
         /// </returns>
-        private IParseResult AddOptionalParameters(AbstractCommand command, Dictionary<string, IParameter> parameters, Dictionary<string, object> args)
+        private IParseResult AddOptionalParameters(AbstractCommand command, Dictionary<string, IParameter> parameters)
         {
             var argumentsToDefault = command.Arguments.Where(x => !x.Value.IsRequired && !parameters.ContainsKey(x.Key));
             foreach (var argument in argumentsToDefault)
