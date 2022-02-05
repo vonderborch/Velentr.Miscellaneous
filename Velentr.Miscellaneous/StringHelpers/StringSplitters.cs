@@ -52,7 +52,7 @@ namespace Velentr.Miscellaneous.StringHelpers
         public static List<string> SplitStringByChunkSize(string str, int maxChunkSize)
         {
             var output = new List<string>();
-            for (var i = 0; i < maxChunkSize; i += maxChunkSize)
+            for (var i = 0; i < str.Length; i += maxChunkSize)
             {
                 output.Add(str.Substring(i, Math.Min(maxChunkSize, str.Length - i)));
             }

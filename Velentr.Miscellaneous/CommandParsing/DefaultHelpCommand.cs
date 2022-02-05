@@ -214,7 +214,10 @@ namespace Velentr.Miscellaneous.CommandParsing
                 str.AppendLine("Arguments:");
                 for (var i = 0; i < command.Arguments.Count; i++)
                 {
-                    str.AppendLine($"  {command.Arguments[i].AsParameterDescription}");
+                    if (!command.Arguments[i].IsHidden)
+                    {
+                        str.AppendLine($"  {command.Arguments[i].AsParameterDescription}");
+                    }
                 }
             }
 

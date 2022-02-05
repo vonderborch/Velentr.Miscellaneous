@@ -119,9 +119,10 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <param name="valueType">    Type of the value. </param>
         /// <param name="defaultValue"> (Optional) The default value. </param>
         /// <param name="isRequired">   (Optional) True if is required, false if not. </param>
-        public void AddArgument(string name, string description, Type valueType, object defaultValue = null, bool isRequired = false)
+        /// <param name="isHidden">     (Optional) True if is hidden, false if not. </param>
+        public void AddArgument(string name, string description, Type valueType, object defaultValue = null, bool isRequired = false, bool isHidden = false)
         {
-            Arguments.AddItem(name, new Argument(name, description, valueType, defaultValue, isRequired));
+            Arguments.AddItem(name, new Argument(name, description, valueType, defaultValue, isRequired, isHidden));
             _exampleCommandCache = "";
             _requiredArgumentsCache = int.MinValue;
         }
@@ -159,7 +160,10 @@ namespace Velentr.Miscellaneous.CommandParsing
 
                 for (var i = 0; i < Arguments.Count; i++)
                 {
-                    str.Append($" {Arguments[i].AsCommandParameter}");
+                    if (!Arguments[i].IsHidden)
+                    {
+                        str.Append($" {Arguments[i].AsCommandParameter}");
+                    }
                 }
 
                 _exampleCommandCache = str.ToString();

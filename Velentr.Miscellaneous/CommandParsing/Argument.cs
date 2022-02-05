@@ -29,14 +29,25 @@ namespace Velentr.Miscellaneous.CommandParsing
         ///                             The default value. </param>
         /// <param name="isRequired">   (Optional)
         ///                             True if this object is required, false if not. </param>
-        public Argument(string name, string description, Type valueType, object defaultValue = null, bool isRequired = false)
+        /// <param name="hidden">       (Optional) True to hide, false to show. </param>
+        public Argument(string name, string description, Type valueType, object defaultValue = null, bool isRequired = false, bool hidden = true)
         {
             Name = name.ToLowerInvariant();
             Description = description;
             ValueType = valueType;
             IsRequired = isRequired;
             DefaultValue = defaultValue;
+            IsHidden = hidden;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether this object is hidden.
+        /// </summary>
+        ///
+        /// <value>
+        /// True if this object is hidden, false if not.
+        /// </value>
+        public bool IsHidden { get; }
 
         /// <summary>
         /// Gets the name.
@@ -99,6 +110,6 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <value>
         /// Information describing as parameter.
         /// </value>
-        public string AsParameterDescription => $"  {Name} - ({(IsRequired == false ? "Optional" : "Required")}, {ValueType.ToString().Replace("System.", "")}) {Description}";
+        public string AsParameterDescription => $"  {Name} - ({(IsRequired == false ? "Optional" : "Required")}, {ValueType.ToString().Replace("System.", "")}{(!IsRequired ? $", Default: {DefaultValue}" : "")}) {Description}";
     }
 }

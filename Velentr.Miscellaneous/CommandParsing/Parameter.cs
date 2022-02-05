@@ -10,13 +10,14 @@
 /// Implements the parameter class.
 /// </summary>
 using System;
+using System.Diagnostics;
 
 namespace Velentr.Miscellaneous.CommandParsing
 {
     /// <summary>
     /// A parameter.
     /// </summary>
-    internal struct Parameter : IParameter
+    internal readonly struct Parameter : IParameter
     {
         /// <summary>
         /// Constructor.

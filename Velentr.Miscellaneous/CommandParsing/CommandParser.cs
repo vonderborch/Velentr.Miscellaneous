@@ -23,6 +23,16 @@ namespace Velentr.Miscellaneous.CommandParsing
     public class CommandParser
     {
         /// <summary>
+        /// (Immutable) the aliases.
+        /// </summary>
+        private readonly Dictionary<string, string> _aliases;
+
+        /// <summary>
+        /// List of types of the command bases.
+        /// </summary>
+        private readonly List<Type> _commandBaseTypes;
+
+        /// <summary>
         /// Gets the command prefix.
         /// </summary>
         ///
@@ -40,16 +50,24 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// Constructor.
         /// </summary>
         ///
-        /// <param name="commandPrefix">                        (Optional) The command prefix. </param>
+        /// <param name="commandPrefix">                        (Optional)
+        ///                                                     The command prefix. </param>
         /// <param name="autoSearchForCommands">                (Optional) True to automatically search
         ///                                                     for commands. </param>
         /// <param name="autoRegisterDefaultHelpCommand">       (Optional) True to automatically register
         ///                                                     default help command. </param>
         /// <param name="defaultHelpCommandPrintsToConsole">    (Optional) True to default help command
         ///                                                     prints to console. </param>
-        public CommandParser(string commandPrefix = "", bool autoSearchForCommands = true, bool autoRegisterDefaultHelpCommand = true, bool defaultHelpCommandPrintsToConsole = true)
+        /// <param name="aliases">                              (Optional)
+        ///                                                     (Immutable) the aliases. </param>
+        /// <param name="baseTypes">                            A variable-length parameters list
+        ///                                                     containing base types. </param>
+        public CommandParser(string commandPrefix = "", bool autoSearchForCommands = true, bool autoRegisterDefaultHelpCommand = true, bool defaultHelpCommandPrintsToConsole = true, Dictionary<string, string> aliases = null, params Type[] baseTypes)
         {
             CommandPrefix = commandPrefix;
+
+            _commandBaseTypes = new List<Type>(baseTypes);
+            _commandBaseTypes.Add(typeof(AbstractCommand));
 
             if (autoSearchForCommands)
             {
@@ -60,6 +78,20 @@ namespace Velentr.Miscellaneous.CommandParsing
             {
                 RegisterHelpCommand(new DefaultHelpCommand(defaultHelpCommandPrintsToConsole));
             }
+
+            _aliases = new Dictionary<string, string>();
+            if (aliases != null)
+            {
+                foreach (var alias in aliases)
+                {
+                    var actualCommandName = $"{CommandPrefix}{alias.Value}";
+                    if (!Commands.Exists(actualCommandName))
+                    {
+                        throw new ArgumentException($"The alias [{alias.Key}] points to an invalid command [{alias.Value}]!");
+                    }
+                    _aliases.Add(alias.Key, actualCommandName);
+                }
+            }
         }
 
         /// <summary>
@@ -67,13 +99,12 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// </summary>
         private void SearchForCommands()
         {
-            var commandType = typeof(AbstractCommand);
             var classes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(x => x.GetTypes())
                 .Where(
                     x => !x.IsInterface
                          && !x.IsAbstract
-                         && x.BaseType == commandType
+                         && _commandBaseTypes.Contains(x.BaseType)
                 ).ToList();
 
             for (var i = 0; i < classes.Count; i++)
@@ -153,14 +184,28 @@ namespace Velentr.Miscellaneous.CommandParsing
             //// Get the Command we'll be running and figure out the argument parts
             AbstractCommand command = null;
             var output = ConvertStringToCommandAndArguments(messageToParse);
-            var commandExists = Commands.Exists(output.Item2);
+            var cmdName = output.Item2;
+            // Check if the command is an alias...
+            if (_aliases.TryGetValue(cmdName, out var tmpName))
+            {
+                cmdName = tmpName;
+            }
+
+            // Check if the command exists and setup some default stuffs...
+            var commandExists = Commands.Exists(cmdName);
             if (commandExists)
             {
-                command = Commands[output.Item2];
+                command = Commands[cmdName];
             }
-            var helpParameters = new Dictionary<string, IParameter>() { { "command", new Parameter("command", typeof(string), output.Item2) } };
+            var helpParameters = new Dictionary<string, IParameter>() { { "command", new Parameter("command", typeof(string), cmdName) } };
             var executeHelpMessageOnFailure = false;
             var commandParameters = new Dictionary<string, IParameter>();
+
+            //// If the message is _just_ the CommandPrefix (assuming one exists), return the help message
+            if (!string.IsNullOrWhiteSpace(CommandPrefix) && string.Equals(messageToParse, CommandPrefix, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return AddOptionalParameters(HelpCommand, new Dictionary<string, IParameter>());
+            }
 
             //// Check for basic failure cases...
             // Failure Case 1 - Invalid Parameters, Command Exists
@@ -172,13 +217,13 @@ namespace Velentr.Miscellaneous.CommandParsing
                 if (commandExists)
                 {
                     helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #1"));
-                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Failed to parse the parameters for the command [{output.Item2}]!"));
+                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Failed to parse the parameters for the command [{cmdName}]!"));
                 }
                 // Failure Case 2 - Invalid Parameters, Command Does Not Exist
                 else
                 {
                     helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #2"));
-                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Command [{output.Item2}] does not exist!"));
+                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Command [{cmdName}] does not exist!"));
                     helpParameters.Add("command_does_not_exist", new Parameter("command_does_not_exist", typeof(string), "yes"));
                 }
             }
@@ -187,7 +232,7 @@ namespace Velentr.Miscellaneous.CommandParsing
             {
                 executeHelpMessageOnFailure = true;
                 helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #3"));
-                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Command [{output.Item2}] does not exist!"));
+                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Command [{cmdName}] does not exist!"));
                 helpParameters.Add("command_does_not_exist", new Parameter("command_does_not_exist", typeof(string), "yes"));
             }
             // Failure Case 4 - We have more arguments than are possible for the command!
@@ -195,7 +240,7 @@ namespace Velentr.Miscellaneous.CommandParsing
             {
                 executeHelpMessageOnFailure = true;
                 helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #4"));
-                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Number of arguments exceeds the amount available for the command [{output.Item2}]!"));
+                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Number of arguments exceeds the amount available for the command [{cmdName}]!"));
             }
 
             if (!executeHelpMessageOnFailure)
@@ -230,12 +275,13 @@ namespace Velentr.Miscellaneous.CommandParsing
 
                         if (!executeHelpMessageOnFailure)
                         {
+                            actualName = actualName.Trim();
                             // Failure Case 6 - An argument with the name specified doesn't exist
                             if (!command.Arguments.Exists(actualName))
                             {
                                 executeHelpMessageOnFailure = true;
                                 helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #6"));
-                                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid argument for the command [{output.Item2}]!"));
+                                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid argument for the command [{cmdName}]!"));
                             }
                             else
                             {
@@ -248,10 +294,14 @@ namespace Velentr.Miscellaneous.CommandParsing
                                 {
                                     executeHelpMessageOnFailure = true;
                                     helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #7"));
-                                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid type for the command [{output.Item2}]!"));
+                                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid type for the command [{cmdName}]!"));
                                 }
                                 else
                                 {
+                                    if (arg.IsRequired)
+                                    {
+                                        requiredArgs++;
+                                    }
                                     commandParameters.Add(actualName, parameter);
                                 }
                             }
@@ -263,7 +313,7 @@ namespace Velentr.Miscellaneous.CommandParsing
                     {
                         executeHelpMessageOnFailure = true;
                         helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #8"));
-                        helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Not all required arguments have been specified for the command [{output.Item2}]!"));
+                        helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Not all required arguments have been specified for the command [{cmdName}]!"));
                     }
                 }
             }

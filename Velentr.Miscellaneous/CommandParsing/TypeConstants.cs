@@ -16,7 +16,7 @@ namespace Velentr.Miscellaneous.CommandParsing
     /// <summary>
     /// A type constants.
     /// </summary>
-    internal static class TypeConstants
+    public static class TypeConstants
     {
         /// <summary>
         /// Type of the int.

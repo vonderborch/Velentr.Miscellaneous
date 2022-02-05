@@ -19,6 +19,15 @@ namespace Velentr.Miscellaneous.CommandParsing
     public interface IArgument
     {
         /// <summary>
+        /// Gets a value indicating whether this object is hidden.
+        /// </summary>
+        ///
+        /// <value>
+        /// True if this object is hidden, false if not.
+        /// </value>
+        public bool IsHidden { get; }
+
+        /// <summary>
         /// Gets the name.
         /// </summary>
         ///

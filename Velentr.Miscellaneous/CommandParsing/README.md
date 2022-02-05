@@ -25,6 +25,8 @@ commandPrefix | A prefix to prepend to any registered commands. I.e. set it to `
 autoSearchForCommands | If True, this will search the Assembly for any classes implementing the `AbstractCommand` class which have the `AutoRegisterCommand` flag set to true, and automatically register them. If False, you'll need to manually register commands with the `RegisterCommand()` method. | `True` | 1.0.0
 autoRegisterDefaultHelpCommand | If True the `DefaultHelpCommand` class will be registered as the `help` Command for the Parser. If False, you'll need to register a help Command using the `RegisterHelpCommand` method. | `True` | 1.0.0
 defaultHelpCommandPrintsToConsole | If True, the `DefaultHelpCommand` class (if it is enabled in the parameter above) will print to the Console automatically. If False, it will not. | `True` | 1.0.0
+aliases | A dictionary containing a aliases (as the key) and the command (as the value) that they are associated with | null | 1.0.4
+baseTypes | Any extra Types appended to the end of the CommandParser's constructor will be treated as other BaseTypes to automatically register | [AbstractCommand] | 1.0.4
 
 # Full Example
 ```
@@ -81,3 +83,6 @@ namespace Velentr.Miscellaneous.dev
     }
 }
 ```
+
+# Reference of Implementation of this on a larger scale
+
