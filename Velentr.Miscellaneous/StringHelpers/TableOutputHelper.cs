@@ -31,11 +31,12 @@ namespace Velentr.Miscellaneous.StringHelpers
         /// <param name="rows">             The rows. </param>
         /// <param name="maxColumnSize">    (Optional) The maximum size of the column. </param>
         /// <param name="addSeparatorText"> (Optional) True to add separator text. </param>
+        /// <param name="includeHeaders">   (Optional) True to include, false to exclude the headers. </param>
         ///
         /// <returns>
         /// The given data converted to a table.
         /// </returns>
-        public static string ConvertToTable(List<string> columns, List<List<string>> rows, int maxColumnSize = int.MaxValue, bool addSeparatorText = true)
+        public static string ConvertToTable(List<string> columns, List<List<string>> rows, int maxColumnSize = int.MaxValue, bool addSeparatorText = true, bool includeHeaders = true)
         {
             // argument checking
             if (maxColumnSize < 1)
@@ -61,15 +62,26 @@ namespace Velentr.Miscellaneous.StringHelpers
                 {
                     columnMax = maxColumnSize;
                 }
-                maxLengthMapping.Add(Math.Max(columnMax, columns[i].Length));
+
+                if (includeHeaders)
+                {
+                    maxLengthMapping.Add(Math.Max(columnMax, columns[i].Length));
+                }
+                else
+                {
+                    maxLengthMapping.Add(columnMax);
+                }
+
                 separators.Add("-");
             }
 
             var str = new StringBuilder();
-            var line = new StringBuilder();
 
             // Next, create the headers...
-            str.Append(GetRowText(columns, maxLengthMapping));
+            if (includeHeaders)
+            {
+                str.Append(GetRowText(columns, maxLengthMapping));
+            }
 
             // Create the separators...
             if (addSeparatorText)
@@ -98,12 +110,12 @@ namespace Velentr.Miscellaneous.StringHelpers
         /// <returns>
         /// The given data converted to a table.
         /// </returns>
-        public static string ConvertToTable(List<string> columns, List<List<object>> rows, int maxColumnSize = int.MaxValue, bool addSeparatorText = true)
+        public static string ConvertToTable(List<string> columns, List<List<object>> rows, int maxColumnSize = int.MaxValue, bool addSeparatorText = true, bool includeHeaders = true)
         {
             // convert the rows into a list of strings...
             var actualRows = rows.Select(x => x.Select(y => y.ToString()).ToList()).ToList();
 
-            return ConvertToTable(columns, actualRows, maxColumnSize, addSeparatorText);
+            return ConvertToTable(columns, actualRows, maxColumnSize, addSeparatorText, includeHeaders);
         }
 
         /// <summary>
