@@ -89,11 +89,12 @@ namespace Velentr.Miscellaneous.CommandParsing
                 foreach (var alias in aliases)
                 {
                     var actualCommandName = $"{CommandPrefix}{alias.Value}";
+                    var aliasCommandName = $"{CommandPrefix}{alias.Key}";
                     if (!Commands.Exists(actualCommandName))
                     {
                         throw new ArgumentException($"The alias [{alias.Key}] points to an invalid command [{alias.Value}]!");
                     }
-                    _aliases.Add(alias.Key, actualCommandName);
+                    _aliases.Add(aliasCommandName, actualCommandName);
                 }
             }
         }
@@ -141,11 +142,33 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// </summary>
         ///
         /// <param name="command">  The command. </param>
-        public void RegisterCommand(AbstractCommand command)
+        /// <param name="aliases">  (Optional)
+        ///                         (Immutable) the aliases. </param>
+        public void RegisterCommand(Type command, List<string> aliases = null)
+        {
+            var comm = Activator.CreateInstance(command);
+            RegisterCommand((AbstractCommand)comm, aliases);
+        }
+
+        /// <summary>
+        /// Registers the command described by command.
+        /// </summary>
+        ///
+        /// <param name="command">  The command. </param>
+        public void RegisterCommand(AbstractCommand command, List<string> aliases = null)
         {
             command.Parser = this;
             command.CommandName = $"{CommandPrefix}{command.Name}";
             Commands.AddItem(command.CommandName, command);
+
+            if (aliases != null)
+            {
+                for (var i = 0; i < aliases.Count; i++)
+                {
+                    var actualCommandName = $"{CommandPrefix}{aliases[i]}";
+                    _aliases.Add(actualCommandName, command.CommandName);
+                }
+            }
         }
 
         /// <summary>
