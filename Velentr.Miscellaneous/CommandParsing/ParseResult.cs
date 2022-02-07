@@ -9,7 +9,6 @@
 /// <summary>
 /// Implements the parse result class.
 /// </summary>
-using System;
 using System.Collections.Generic;
 
 namespace Velentr.Miscellaneous.CommandParsing

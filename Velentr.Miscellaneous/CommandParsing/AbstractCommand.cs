@@ -114,6 +114,25 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// Adds an argument.
         /// </summary>
         ///
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        /// <param name="name">         The name. </param>
+        /// <param name="description">  The description. </param>
+        /// <param name="defaultValue"> (Optional) The default value. </param>
+        /// <param name="isRequired">   (Optional) True if is required, false if not. </param>
+        /// <param name="isHidden">     (Optional) True if is hidden, false if not. </param>
+        public void AddArgument<T>(string name, string description, object defaultValue = null, bool isRequired = false,
+            bool isHidden = false)
+        {
+            AddArgument(name, description, typeof(T), defaultValue, isRequired, isHidden);
+        }
+
+        /// <summary>
+        /// Adds an argument.
+        /// </summary>
+        ///
+        /// <exception cref="ArgumentException">    Thrown when one or more arguments have unsupported or
+        ///                                         illegal values. </exception>
+        ///
         /// <param name="name">         The name. </param>
         /// <param name="description">  The description. </param>
         /// <param name="valueType">    Type of the value. </param>
@@ -122,7 +141,35 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <param name="isHidden">     (Optional) True if is hidden, false if not. </param>
         public void AddArgument(string name, string description, Type valueType, object defaultValue = null, bool isRequired = false, bool isHidden = false)
         {
-            Arguments.AddItem(name, new Argument(name, description, valueType, defaultValue, isRequired, isHidden));
+            // hidden arguments cannot be required...
+            if (isHidden && isRequired)
+            {
+                throw new ArgumentException("Hidden arguments cannot be required!");
+            }
+
+            // find the index to insert the argument into...
+            var index = (int)Arguments.Count;
+            // if this is _not_ a hidden arg, insert it _before_ the last hidden arg and _before_ the last optional arg
+            if (!isHidden)
+            {
+                var hiddenArguments = Arguments.Where(x => x.Value.IsHidden).ToList();
+                var optionalArguments = Arguments.Where(x => !x.Value.IsRequired && !x.Value.IsHidden).ToList();
+                if (hiddenArguments.Count > 0)
+                {
+                    index = Arguments.GetIndexForKey(hiddenArguments[(int)hiddenArguments.Count - 1].Key);
+                }
+                if (optionalArguments.Count > 0 && isRequired)
+                {
+                    index = Arguments.GetIndexForKey(optionalArguments[(int)optionalArguments.Count - 1].Key);
+                }
+            }
+
+            // Add the new item...
+            if (defaultValue == null && valueType.IsValueType)
+            {
+                defaultValue = Activator.CreateInstance(valueType);
+            }
+            Arguments.AddItem(name, new Argument(name, description, valueType, defaultValue, isRequired, isHidden), index);
             _exampleCommandCache = "";
             _requiredArgumentsCache = int.MinValue;
         }
@@ -198,10 +245,29 @@ namespace Velentr.Miscellaneous.CommandParsing
         {
             if (parameters.TryGetValue(parameter, out var value))
             {
-                return (string)value.Value;
+                return value.Value<string>();
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Removes the argument described by name.
+        /// </summary>
+        ///
+        /// <param name="name"> The name. </param>
+        ///
+        /// <returns>
+        /// True if it succeeds, false if it fails.
+        /// </returns>
+        public bool RemoveArgument(string name)
+        {
+            if (Arguments.Exists(name))
+            {
+                Arguments.RemoveItem(name);
+            }
+
+            return false;
         }
     }
 }

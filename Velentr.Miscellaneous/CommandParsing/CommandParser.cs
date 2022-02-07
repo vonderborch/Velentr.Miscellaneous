@@ -28,6 +28,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         private readonly Dictionary<string, string> _aliases;
 
         /// <summary>
+        /// (Immutable)
         /// List of types of the command bases.
         /// </summary>
         private readonly List<Type> _commandBaseTypes;
@@ -49,6 +50,9 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <summary>
         /// Constructor.
         /// </summary>
+        ///
+        /// <exception cref="ArgumentException">    Thrown when one or more arguments have unsupported or
+        ///                                         illegal values. </exception>
         ///
         /// <param name="commandPrefix">                        (Optional)
         ///                                                     The command prefix. </param>
@@ -246,75 +250,77 @@ namespace Velentr.Miscellaneous.CommandParsing
             if (!executeHelpMessageOnFailure)
             {
                 //// Next, let's create the arguments dict and make sure we have all required args
-                if (!executeHelpMessageOnFailure)
+                var requiredArgs = 0;
+                var lastParameterWasNamed = false;
+                for (var i = 0; i < output.Item3.Count; i++)
                 {
-                    var requiredArgs = 0;
-                    var lastParameterWasNamed = false;
-                    for (var i = 0; i < output.Item3.Count; i++)
+                    var name = output.Item3[i].Item1;
+                    var value = output.Item3[i].Item2;
+
+                    var actualName = name;
+                    if (string.IsNullOrWhiteSpace(name))
                     {
-                        var name = output.Item3[i].Item1;
-                        var value = output.Item3[i].Item2;
-
-                        var actualName = name;
-                        if (string.IsNullOrWhiteSpace(name))
+                        if (lastParameterWasNamed)
                         {
-                            if (lastParameterWasNamed)
-                            {
-                                // Failure Case 5 - No unnamed parameters after a named parameter
-                                executeHelpMessageOnFailure = true;
-                                helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #5"));
-                                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"No unnamed parameters may be specified after a named parameter has already been specified!"));
-                            }
+                            // Failure Case 5 - No unnamed parameters after a named parameter
+                            executeHelpMessageOnFailure = true;
+                            helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #5"));
+                            helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"No unnamed parameters may be specified after a named parameter has already been specified!"));
+                        }
 
-                            actualName = command.Arguments[i].Name;
+                        actualName = command.Arguments[i].Name;
+                    }
+                    else
+                    {
+                        lastParameterWasNamed = true;
+                    }
+
+                    if (!executeHelpMessageOnFailure)
+                    {
+                        actualName = actualName.Trim();
+                        // Failure Case 6 - An argument with the name specified doesn't exist
+                        if (!command.Arguments.Exists(actualName))
+                        {
+                            executeHelpMessageOnFailure = true;
+                            helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #6"));
+                            helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid argument for the command [{cmdName}]!"));
                         }
                         else
                         {
-                            lastParameterWasNamed = true;
-                        }
+                            actualName = actualName.ToLowerInvariant();
+                            var arg = command.Arguments[actualName];
+                            if (string.IsNullOrWhiteSpace(value) && arg.ValueType == TypeConstants.BoolType)
+                            {
+                                value = (!((bool)arg.DefaultValue)).ToString();
+                            }
 
-                        if (!executeHelpMessageOnFailure)
-                        {
-                            actualName = actualName.Trim();
-                            // Failure Case 6 - An argument with the name specified doesn't exist
-                            if (!command.Arguments.Exists(actualName))
+                            var parameter = new Parameter(actualName, arg.ValueType, value);
+
+                            // Failure Case 7 - Invalid Parameter Type
+                            if (!parameter.ParameterIsValidType)
                             {
                                 executeHelpMessageOnFailure = true;
-                                helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #6"));
-                                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid argument for the command [{cmdName}]!"));
+                                helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #7"));
+                                helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid type for the command [{cmdName}]!"));
                             }
                             else
                             {
-                                actualName = actualName.ToLowerInvariant();
-                                var arg = command.Arguments[actualName];
-                                var parameter = new Parameter(actualName, arg.ValueType, value);
-                                
-                                // Failure Case 7 - Invalid Parameter Type
-                                if (!parameter.ParameterIsValidType)
+                                if (arg.IsRequired)
                                 {
-                                    executeHelpMessageOnFailure = true;
-                                    helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #7"));
-                                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"The argument with the name [{actualName}] isn't a valid type for the command [{cmdName}]!"));
+                                    requiredArgs++;
                                 }
-                                else
-                                {
-                                    if (arg.IsRequired)
-                                    {
-                                        requiredArgs++;
-                                    }
-                                    commandParameters.Add(actualName, parameter);
-                                }
+                                commandParameters.Add(actualName, parameter);
                             }
                         }
                     }
+                }
 
-                    // Failure Case 8 - Not all required arguments have been specified
-                    if (requiredArgs != command.GetRequiredArgumentsCount())
-                    {
-                        executeHelpMessageOnFailure = true;
-                        helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #8"));
-                        helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Not all required arguments have been specified for the command [{cmdName}]!"));
-                    }
+                // Failure Case 8 - Not all required arguments have been specified
+                if (!executeHelpMessageOnFailure && requiredArgs != command.GetRequiredArgumentsCount())
+                {
+                    executeHelpMessageOnFailure = true;
+                    helpParameters.Add("failure_case", new Parameter("failure_case", typeof(string), "Error #8"));
+                    helpParameters.Add("failure_exception", new Parameter("failure_exception", typeof(string), $"Not all required arguments have been specified for the command [{cmdName}]!"));
                 }
             }
 
@@ -336,17 +342,18 @@ namespace Velentr.Miscellaneous.CommandParsing
         ///
         /// <param name="command">      The command. </param>
         /// <param name="parameters">   Options for controlling the operation. </param>
-        /// <param name="args">         The arguments. </param>
         ///
         /// <returns>
         /// A Tuple.
         /// </returns>
+        ///
+        /// ### <param name="args"> The arguments. </param>
         private IParseResult AddOptionalParameters(AbstractCommand command, Dictionary<string, IParameter> parameters)
         {
             var argumentsToDefault = command.Arguments.Where(x => !x.Value.IsRequired && !parameters.ContainsKey(x.Key));
             foreach (var argument in argumentsToDefault)
             {
-                parameters.Add(argument.Key, new Parameter(argument.Key, argument.Value.ValueType, argument.Value.DefaultValue, false));
+                parameters.Add(argument.Key, new Parameter(argument.Key, argument.Value.ValueType, argument.Value.DefaultValue.ToString(), false));
             }
 
             return new ParseResult(command, parameters);

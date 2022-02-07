@@ -10,7 +10,7 @@
 /// Implements the parameter class.
 /// </summary>
 using System;
-using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Velentr.Miscellaneous.CommandParsing
 {
@@ -20,22 +20,34 @@ namespace Velentr.Miscellaneous.CommandParsing
     internal readonly struct Parameter : IParameter
     {
         /// <summary>
+        /// (Immutable) the converter.
+        /// </summary>
+        private readonly TypeConverter _converter;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         ///
+        /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
+        ///
         /// <param name="name">                 The name. </param>
-        /// <param name="valueType">            The type of the value. </param>
+        /// <param name="parameterType">        The type of the value. </param>
         /// <param name="value">                (Optional)
         ///                                     The value. </param>
         /// <param name="wasProvidedByUser">    (Optional)
         ///                                     True if was provided by user, false if not. </param>
-        public Parameter(string name, Type valueType, object value = null, bool wasProvidedByUser = true)
+        public Parameter(string name, Type parameterType, string value = null, bool wasProvidedByUser = true)
         {
             Name = name;
-            ValueType = valueType;
-            Value = value;
+            ParameterType = parameterType;
+            if (!TypeConstants.ValidTypes.Contains(parameterType))
+            {
+                throw new Exception("Invalid type! Only base types are valid!");
+            }
+            RawValue = value;
             WasProvidedByUser = wasProvidedByUser;
             ParameterIsValidType = true;
+            _converter = TypeDescriptor.GetConverter(ParameterType);
             ParameterIsValidType = ValidateParameterType();
         }
 
@@ -64,7 +76,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <value>
         /// The type of the value.
         /// </value>
-        public Type ValueType { get; }
+        public Type ParameterType { get; }
 
         /// <summary>
         /// Gets the value.
@@ -73,7 +85,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <value>
         /// The value.
         /// </value>
-        public object Value { get; }
+        public string RawValue { get; }
 
         /// <summary>
         /// Gets a value indicating whether the was provided by user.
@@ -85,6 +97,38 @@ namespace Velentr.Miscellaneous.CommandParsing
         public bool WasProvidedByUser { get; }
 
         /// <summary>
+        /// Gets the value.
+        /// </summary>
+        ///
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        ///
+        /// <returns>
+        /// The value.
+        /// </returns>
+        ///
+        /// <seealso cref="IParameter.GetValue{T}()"/>
+        public T GetValue<T>()
+        {
+            return (T)_converter.ConvertFrom(RawValue);
+        }
+
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        ///
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        ///
+        /// <returns>
+        /// The value.
+        /// </returns>
+        ///
+        /// <seealso cref="IParameter.GetValue{T}()"/>
+        public T Value<T>()
+        {
+            return (T)_converter.ConvertFrom(RawValue);
+        }
+
+        /// <summary>
         /// Validates the parameter type.
         /// </summary>
         ///
@@ -93,73 +137,14 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// </returns>
         private bool ValidateParameterType()
         {
+            if (ParameterType == TypeConstants.StringType)
+            {
+                return true;
+            }
             try
             {
-                if (ValueType == TypeConstants.IntType)
-                {
-                    var _ = (int)Value;
-                }
-                else if (ValueType == TypeConstants.LongType)
-                {
-                    var _ = (long)Value;
-                }
-                else if (ValueType == TypeConstants.ShortType)
-                {
-                    var _ = (short)Value;
-                }
-                else if (ValueType == TypeConstants.UnsignedIntType)
-                {
-                    var _ = (uint)Value;
-                }
-                else if (ValueType == TypeConstants.UnsignedLongType)
-                {
-                    var _ = (ulong)Value;
-                }
-                else if (ValueType == TypeConstants.UnsignedShortType)
-                {
-                    var _ = (ushort)Value;
-                }
-                else if (ValueType == TypeConstants.ByteType)
-                {
-                    var _ = (byte)Value;
-                }
-                else if (ValueType == TypeConstants.BoolType)
-                {
-                    var _ = (bool)Value;
-                }
-                else if (ValueType == TypeConstants.StringType)
-                {
-                    var _ = Value.ToString();
-                }
-                else if (ValueType == TypeConstants.FloatType)
-                {
-                    var _ = (float)Value;
-                }
-                else if (ValueType == TypeConstants.DoubleType)
-                {
-                    var _ = (double)Value;
-                }
-                else if (ValueType == TypeConstants.DecimalType)
-                {
-                    var _ = (decimal)Value;
-                }
-                else if (ValueType == TypeConstants.SByteType)
-                {
-                    var _ = (sbyte)Value;
-                }
-                else if (ValueType == TypeConstants.CharType)
-                {
-                    var _ = (char)Value;
-                }
-                else if (ValueType == TypeConstants.NIntType)
-                {
-                    var _ = (nint)Value;
-                }
-                else if (ValueType == TypeConstants.NUnsignedIntType)
-                {
-                    var _ = (nuint)Value;
-                }
-
+                var converter = TypeDescriptor.GetConverter(ParameterType);
+                var _ = converter.ConvertFrom(RawValue);
                 return true;
             }
             catch

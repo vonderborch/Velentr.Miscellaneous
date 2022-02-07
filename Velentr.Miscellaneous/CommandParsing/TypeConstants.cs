@@ -10,6 +10,7 @@
 /// Implements the type constants class.
 /// </summary>
 using System;
+using System.Collections.Generic;
 
 namespace Velentr.Miscellaneous.CommandParsing
 {
@@ -97,5 +98,28 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// Type of the unsigned int.
         /// </summary>
         public static Type NUnsignedIntType = typeof(nuint);
+
+        /// <summary>
+        /// List of types of the valids.
+        /// </summary>
+        public static List<Type> ValidTypes = new()
+        {
+            IntType,
+            LongType,
+            ShortType,
+            UnsignedIntType,
+            UnsignedLongType,
+            UnsignedShortType,
+            ByteType,
+            BoolType,
+            StringType,
+            FloatType,
+            DoubleType,
+            DecimalType,
+            SByteType,
+            CharType,
+            NIntType,
+            NUnsignedIntType
+        };
     }
 }

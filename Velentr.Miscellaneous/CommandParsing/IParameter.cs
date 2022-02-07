@@ -43,7 +43,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <value>
         /// The type of the value.
         /// </value>
-        public Type ValueType { get; }
+        public Type ParameterType { get; }
 
         /// <summary>
         /// Gets the value.
@@ -52,7 +52,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// <value>
         /// The value.
         /// </value>
-        public object Value { get; }
+        public string RawValue { get; }
 
         /// <summary>
         /// Gets a value indicating whether the was provided by user.
@@ -62,5 +62,27 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// True if was provided by user, false if not.
         /// </value>
         public bool WasProvidedByUser { get; }
+
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        ///
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        ///
+        /// <returns>
+        /// The value.
+        /// </returns>
+        public T GetValue<T>();
+
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        ///
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        ///
+        /// <returns>
+        /// The value.
+        /// </returns>
+        public T Value<T>();
     }
 }

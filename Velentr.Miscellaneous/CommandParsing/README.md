@@ -17,6 +17,7 @@ Parameter | struct | Represents a parameter that has actually been passed to the
 ParseResult | struct | Contains the results of a `ParseCommand` method call, which is the Command that we were able to Parse (or null) and a Dictionary containing the parameters that were parsed with the command (and/or default values for the arguments). | 1.0.0 | N/A (internal-only) | An instance of this class, which implements the `IParseResult` interface, is automatically created when a Command is parsed.
 DefaultHelpCommand | class | The default Help Command. This can automatically be added to the Command Parser based on what parameters are passed to the CommandParser on initialization. | 1.0.0 | `var cmd = new DefaultHelpCommand(false);` | You can use this class as-is or extend it. If replacing/extending it, make sure to implement functionality for handling the different cases for error handling and providing general help vs. specific command help!
 CommandParser | class | The core of the helpers. This class handles registering and parsing commands that can be called. | 1.0.0 | `var parser = new CommandParser();` | N/A
+TypeConstants | static class | A list of built-in Types | 1.0.4 | `var stringType = TypeConstants.StringType` | N/A
 
 # Parameters for the Command Parser
 Parameter Name | Description | Default Value | Min Supported Version
@@ -25,7 +26,7 @@ commandPrefix | A prefix to prepend to any registered commands. I.e. set it to `
 autoSearchForCommands | If True, this will search the Assembly for any classes implementing the `AbstractCommand` class which have the `AutoRegisterCommand` flag set to true, and automatically register them. If False, you'll need to manually register commands with the `RegisterCommand()` method. | `True` | 1.0.0
 autoRegisterDefaultHelpCommand | If True the `DefaultHelpCommand` class will be registered as the `help` Command for the Parser. If False, you'll need to register a help Command using the `RegisterHelpCommand` method. | `True` | 1.0.0
 defaultHelpCommandPrintsToConsole | If True, the `DefaultHelpCommand` class (if it is enabled in the parameter above) will print to the Console automatically. If False, it will not. | `True` | 1.0.0
-aliases | A dictionary containing a aliases (as the key) and the command (as the value) that they are associated with | null | 1.0.4
+aliases | A dictionary containing a aliases (as the key) and the command (as the value) that they are associated with | null | 1.1.4
 baseTypes | Any extra Types appended to the end of the CommandParser's constructor will be treated as other BaseTypes to automatically register | [AbstractCommand] | 1.0.4
 
 # Full Example

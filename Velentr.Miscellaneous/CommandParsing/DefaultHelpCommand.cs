@@ -21,6 +21,7 @@ namespace Velentr.Miscellaneous.CommandParsing
     /// A default help command.
     /// </summary>
     ///
+    /// <seealso cref="Velentr.Miscellaneous.CommandParsing.AbstractCommand"/>
     /// <seealso cref="AbstractCommand"/>
     public class DefaultHelpCommand : AbstractCommand
     {
@@ -87,9 +88,9 @@ namespace Velentr.Miscellaneous.CommandParsing
             var str = new StringBuilder();
             ExecutePreCommand(str, parameters, args);
 
-            var commandToExecuteOn = ((string)parameters["command"].Value).ToLowerInvariant();
-            var showParameters = (bool)parameters["show_parameters"].Value;
-            var asTable = (bool)parameters["as_table"].Value;
+            var commandToExecuteOn = parameters["command"].GetValue<string>().ToLowerInvariant();
+            var showParameters = parameters["show_parameters"].GetValue<bool>();
+            var asTable = parameters["as_table"].GetValue<bool>();
 
             // Get special Debug Parameters, if they exist
             var failureCase = GetParameterValueIfExistsAsString("failure_case", parameters);
@@ -154,46 +155,42 @@ namespace Velentr.Miscellaneous.CommandParsing
             // Path 1 - Display Generic Message for All Commands
             if (string.IsNullOrWhiteSpace(commandToExecuteOn))
             {
-                var seperator = asTable ? " | " : " - ";
-                var maxNameLength = 0;
-                var maxDescriptionLength = 0;
-                var maxExampleCommandLength = 0;
-
-                // if this is a table, display column headers...
-                if (asTable)
-                {
-                    maxNameLength = Parser.Commands.Where(x => !x.Value.IsHidden).Max(x => x.Key.Length);
-                    maxDescriptionLength = Parser.Commands.Where(x => !x.Value.IsHidden).Max(x => x.Value.Description.Length);
-                    maxExampleCommandLength = Parser.Commands.Where(x => !x.Value.IsHidden).Max(x => x.Value.GetExampleCommand().Length);
-                    maxNameLength = maxNameLength < _helpColumns[0].Length ? _helpColumns[0].Length : maxNameLength;
-                    maxDescriptionLength = maxDescriptionLength < _helpColumns[1].Length ? _helpColumns[1].Length : maxDescriptionLength;
-                    maxExampleCommandLength = maxExampleCommandLength < _helpColumns[2].Length ? _helpColumns[2].Length : maxExampleCommandLength;
-
-                    var header = $"{_helpColumns[0].PadRight(maxNameLength)}{seperator}{_helpColumns[1].PadRight(maxDescriptionLength)}";
-                    var headerSeperator = $"{"-".PadRight(maxNameLength, '-')}{seperator}{"-".PadRight(maxDescriptionLength, '-')}";
-                    if (showParameters)
-                    {
-                        header = $"{header}{seperator}{_helpColumns[2].PadRight(maxExampleCommandLength)}";
-                        headerSeperator = $"{headerSeperator}{seperator}{("-".PadRight(maxExampleCommandLength, '-'))}";
-                    }
-
-                    str.AppendLine(header);
-                    str.AppendLine(headerSeperator);
-                }
-
-                // print out each command's help message...
+                var commandRows = new List<List<string>>();
                 for (var i = 0; i < Parser.Commands.Count; i++)
                 {
                     if (!Parser.Commands[i].IsHidden)
                     {
-                        var line = $"{Parser.Commands[i].CommandName.PadRight(maxNameLength)}{seperator}{Parser.Commands[i].Description.PadRight(maxDescriptionLength)}";
+                        var row = new List<string>
+                        {
+                            Parser.Commands[i].CommandName,
+                            Parser.Commands[i].Description
+                        };
 
                         if (showParameters)
                         {
-                            line = $"{line}{seperator}{Parser.Commands[i].GetExampleCommand().PadRight(maxExampleCommandLength)}";
+                            row.Add(Parser.Commands[i].GetExampleCommand());
                         }
 
-                        str.AppendLine(line);
+                        commandRows.Add(row);
+                    }
+                }
+
+                if (asTable)
+                {
+                    str.AppendLine(TableOutputHelper.ConvertToTable(_helpColumns, commandRows));
+                }
+                else
+                {
+                    for (var i = 0; i < commandRows.Count; i++)
+                    {
+                        var line = new StringBuilder();
+                        line.Append(commandRows[i][0]);
+                        for (var j = 1; j < commandRows[i].Count; j++)
+                        {
+                            line.Append($" - {commandRows[i][j]}");
+                        }
+
+                        str.AppendLine(line.ToString());
                     }
                 }
             }
