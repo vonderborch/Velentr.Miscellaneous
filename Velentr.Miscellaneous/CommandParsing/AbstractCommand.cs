@@ -156,11 +156,11 @@ namespace Velentr.Miscellaneous.CommandParsing
                 var optionalArguments = Arguments.Where(x => !x.Value.IsRequired && !x.Value.IsHidden).ToList();
                 if (hiddenArguments.Count > 0)
                 {
-                    index = Arguments.GetIndexForKey(hiddenArguments[(int)hiddenArguments.Count - 1].Key);
+                    index = Arguments.GetIndexForKey(hiddenArguments[0].Key);
                 }
                 if (optionalArguments.Count > 0 && isRequired)
                 {
-                    index = Arguments.GetIndexForKey(optionalArguments[(int)optionalArguments.Count - 1].Key);
+                    index = Arguments.GetIndexForKey(optionalArguments[0].Key);
                 }
             }
 

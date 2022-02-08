@@ -157,6 +157,8 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// </summary>
         ///
         /// <param name="command">  The command. </param>
+        /// <param name="aliases">  (Optional)
+        ///                         (Immutable) the aliases. </param>
         public void RegisterCommand(AbstractCommand command, List<string> aliases = null)
         {
             command.Parser = this;
@@ -167,8 +169,7 @@ namespace Velentr.Miscellaneous.CommandParsing
             {
                 for (var i = 0; i < aliases.Count; i++)
                 {
-                    var actualCommandName = $"{CommandPrefix}{aliases[i]}";
-                    _aliases.Add(actualCommandName, command.CommandName);
+                    _aliases.Add(aliases[i], command.CommandName);
                 }
             }
         }
@@ -205,7 +206,7 @@ namespace Velentr.Miscellaneous.CommandParsing
         public virtual IParseResult ParseCommand(string messageToParse)
         {
             //// return early if there's nothing to attempt to parse...
-            if (!messageToParse.StartsWith(CommandPrefix))
+            if (string.IsNullOrWhiteSpace(messageToParse))
             {
                 return new ParseResult(null, null);
             }
