@@ -131,10 +131,12 @@ namespace Velentr.Miscellaneous.CommandParsing
         /// </summary>
         ///
         /// <param name="command">  The command. </param>
-        public void RegisterHelpCommand(AbstractCommand command)
+        /// <param name="aliases">  (Optional)
+        ///                         (Immutable) the aliases. </param>
+        public void RegisterHelpCommand(AbstractCommand command, List<string> aliases = null)
         {
             command.Name = "help";
-            RegisterCommand(command);
+            RegisterCommand(command, aliases);
         }
 
         /// <summary>
