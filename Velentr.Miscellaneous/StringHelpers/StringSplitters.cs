@@ -54,7 +54,7 @@ namespace Velentr.Miscellaneous.StringHelpers
             var output = new List<string>();
             for (var i = 0; i < str.Length; i += maxChunkSize)
             {
-                output.Add(str.Substring(i, Math.Min(maxChunkSize, str.Length - i)));
+                output.Add(str.Substring(i, System.Math.Min(maxChunkSize, str.Length - i)));
             }
 
             return output;

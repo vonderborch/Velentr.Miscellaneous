@@ -65,7 +65,7 @@ namespace Velentr.Miscellaneous.StringHelpers
 
                 if (includeHeaders)
                 {
-                    maxLengthMapping.Add(Math.Max(columnMax, columns[i].Length));
+                    maxLengthMapping.Add(System.Math.Max(columnMax, columns[i].Length));
                 }
                 else
                 {

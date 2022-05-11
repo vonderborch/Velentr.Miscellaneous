@@ -9,6 +9,7 @@
 /// <summary>
 /// Implements the Guard class.
 /// </summary>
+
 using System.Diagnostics;
 using System.Threading;
 
@@ -17,48 +18,42 @@ namespace Velentr.Miscellaneous.Threading
     /// <summary>
     /// A thread-safe boolean guard/flag.
     /// </summary>
-    [DebuggerDisplay("Current State = {state}")]
+    [DebuggerDisplay("State = {state == TRUE}")]
     public class Guard
     {
         /// <summary>
         /// The value for false
         /// </summary>
-        private const int FALSE = 0;
+        private const int False = 0;
 
         /// <summary>
         /// The value for true
         /// </summary>
-        private const int TRUE = 1;
+        private const int True = 1;
 
         /// <summary>
         /// The current state
         /// </summary>
-        private int state = FALSE;
+        private int _state = False;
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Guard"/> is check.
         /// </summary>
         /// <value><c>true</c> if check; otherwise, <c>false</c>.</value>
-        public bool Check
-        {
-            get { return state == TRUE; }
-        }
+        public bool Check => _state == True;
 
         /// <summary>
         /// Gets a value indicating whether [check set].
         /// </summary>
         /// <value><c>true</c> if [check set]; otherwise, <c>false</c>.</value>
-        public bool CheckSet
-        {
-            get { return Interlocked.Exchange(ref state, TRUE) == FALSE; }
-        }
+        public bool CheckSet => Interlocked.Exchange(ref _state, True) == False;
 
         /// <summary>
         /// Mark the guard as being checked.
         /// </summary>
         public void MarkChecked()
         {
-            Interlocked.Exchange(ref state, TRUE);
+            Interlocked.Exchange(ref _state, True);
         }
 
         /// <summary>
@@ -66,7 +61,7 @@ namespace Velentr.Miscellaneous.Threading
         /// </summary>
         public void Reset()
         {
-            Interlocked.Exchange(ref state, FALSE);
+            Interlocked.Exchange(ref _state, False);
         }
     }
 }

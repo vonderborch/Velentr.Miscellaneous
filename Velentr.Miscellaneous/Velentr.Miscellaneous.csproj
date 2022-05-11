@@ -11,9 +11,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/vonderborch/Velentr.Miscellaneous</PackageProjectUrl>
     <BaseOutputPath>..\release\</BaseOutputPath>
-    <Version>1.1.6</Version>
-    <AssemblyVersion>1.1.6</AssemblyVersion>
-    <FileVersion>1.1.6</FileVersion>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
+    <FileVersion>1.2.0</FileVersion>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -26,7 +27,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.5" PrivateAssets="All" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="6.0.1" PrivateAssets="All" />
     <PackageReference Include="Velentr.Collections" Version="1.2.0" />
+    <PackageReference Include="Velentr.Math" Version="1.1.0" />
   </ItemGroup>
 
 </Project>

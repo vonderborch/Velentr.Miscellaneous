@@ -59,7 +59,7 @@ namespace Velentr.Miscellaneous.StringHelpers
                     int min1 = d[i - 1, j] + 1;
                     int min2 = d[i, j - 1] + 1;
                     int min3 = d[i - 1, j - 1] + cost;
-                    d[i, j] = Math.Min(Math.Min(min1, min2), min3);
+                    d[i, j] = System.Math.Min(System.Math.Min(min1, min2), min3);
                 }
             }
             return d[n, m];
@@ -124,7 +124,7 @@ namespace Velentr.Miscellaneous.StringHelpers
                 {
                     int cost = s[i - 1] == tJ ? 0 : 1; // cost
                     // minimum of cell to the left+1, to the top+1, diagonally left and up +cost
-                    d[i] = Math.Min(Math.Min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
+                    d[i] = System.Math.Min(System.Math.Min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
                 }
 
                 // copy current distance counts to 'previous row' distance counts
