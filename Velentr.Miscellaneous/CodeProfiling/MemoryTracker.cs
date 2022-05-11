@@ -17,8 +17,6 @@ namespace Velentr.Miscellaneous.CodeProfiling
 
         private Queue<long> _samples;
 
-        private readonly Process _process;
-
         private readonly int _sleepTime;
 
         private Task _updateThread;
@@ -29,7 +27,7 @@ namespace Velentr.Miscellaneous.CodeProfiling
 
         public MemoryTracker(int maximumSamples = 100, bool automaticallyStartTracking = false, int sleepTime = 1000) : base(maximumSamples)
         {
-            _process = Process.GetCurrentProcess();
+            _samples = new Queue<long>();
             _sleepTime = sleepTime;
             ContinueTrackingForever = automaticallyStartTracking;
             _cancellationToken = new CancellationTokenSource();
@@ -76,7 +74,7 @@ namespace Velentr.Miscellaneous.CodeProfiling
         {
             do
             {
-                _samples.Enqueue(_process.WorkingSet64);
+                _samples.Enqueue(Process.GetCurrentProcess().WorkingSet64);
                 while (_samples.Count > MaximumSamples)
                 {
                     _samples.Dequeue();

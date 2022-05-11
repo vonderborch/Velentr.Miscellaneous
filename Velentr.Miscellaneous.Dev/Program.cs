@@ -9,6 +9,9 @@
 /// <summary>
 /// Implements the program class.
 /// </summary>
+
+using Velentr.Miscellaneous.CodeProfiling;
+
 namespace Velentr.Miscellaneous.dev
 {
     /// <summary>
@@ -23,6 +26,7 @@ namespace Velentr.Miscellaneous.dev
         /// <param name="args"> An array of command-line argument strings. </param>
         private static void Main(string[] args)
         {
+            var tracker = new MemoryTracker(automaticallyStartTracking: true);
             var parser = new CommandParserDev();
             parser.Main(args);
         }
