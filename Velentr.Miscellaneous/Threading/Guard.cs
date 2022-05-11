@@ -1,7 +1,18 @@
-﻿using System.Diagnostics;
+﻿/// <file>
+/// Velentr.Miscellaneous\Threading\Guard.cs
+/// </file>
+///
+/// <copyright file="Guard.cs" company="">
+/// Copyright (c) 2022 Christian Webber. All rights reserved.
+/// </copyright>
+///
+/// <summary>
+/// Implements the Guard class.
+/// </summary>
+using System.Diagnostics;
 using System.Threading;
 
-namespace Velentr.Miscellaneous
+namespace Velentr.Miscellaneous.Threading
 {
     /// <summary>
     /// A thread-safe boolean guard/flag.
